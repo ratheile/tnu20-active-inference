@@ -1,14 +1,14 @@
 clear 
 clc
 
-rng(15,'twister');
+rng(1,'twister');
 
 addpath ~/Desktop/Courses/TNU/Project/spm12
 addpath ~/Desktop/Courses/TNU/Project/spm12/toolbox/DEM
 
-num_trials = 3;
-num_episodes = 20;
-z  = [4 8 12 16]; % change context for some episodes
+num_trials = 10;
+num_episodes = 50;
+z  = randsample(num_episodes, 8); % change context for some episodes
 pLoc = randi([1 5], 1);
 vLoc = randi([1 5], 1);
 
@@ -29,9 +29,9 @@ trwp = zeros(num_episodes, num_trials);
              if sum(z==i) == 1
                  pLoc = randi([1 5], 1);
                  vLoc = randi([1 5], 1);
-                 [MDP.s]     = [pLoc vLoc]';
+                 [MDP.s]     = [3 pLoc]';
              else
-                 [MDP.s]     = [pLoc vLoc]';
+                 [MDP.s]     = [3 vLoc]';
              end
 
              MDP  = spm_MDP_VB_X(MDP);     
