@@ -53,10 +53,20 @@ label.modality{o1} = 'state'; label.outcome = {'hom', 'dys'};
 % Likelihood over outcomes
 %--------------------------------------------------------------------------
 % p_i to o_1 likelihood conditioned on v_k
+
+
+% Deterministic A
+% for k = 1:Nf(f2)
+%   A{o1}(:,:,k)= [zeros(1,Nf(f2)); ones(1,Nf(f2))];
+%   A{o1}(1,k,k) = 1; % example: [0 1 0 0 0 ] k = 2
+%   A{o1}(2,k,k) = 0; % example: [1 0 1 1 1 ]
+% end
+
 for k = 1:Nf(f2)
-  A{o1}(:,:,k)= [zeros(1,Nf(f2)); ones(1,Nf(f2))];
-  A{o1}(1,k,k) = 1; % example: [0 1 0 0 0 ] k = 2
-  A{o1}(2,k,k) = 0; % example: [1 0 1 1 1 ]
+  sigma = 0.4;
+  x = 1:1:Nf(f2);
+  y = normpdf(x,k,sigma);
+  A{o1}(:,:,k)= [y; 1-y];
 end
 
 
@@ -91,12 +101,18 @@ end
 % Allowable policies
 %--------------------------------------------------------------------------
 
-V(:,:,1) =  [2 1 1 1 1 3 3 3 3;  
-             2 2 1 1 1 2 3 3 3;
-             2 2 2 1 1 2 2 3 3;
-             2 2 2 2 1 2 2 2 3];
+V(:,:,f1) =  [2 2 2 2 ;
+              1 2 2 2 ;
+              1 2 2 2 ;
+              1 2 2 2 ;
+              1 2 2 2 ;
+              3 2 2 2 ;
+              3 2 2 2 ;
+              3 2 2 2 ;
+              3 2 2 2 ;
+              ]';
          
-V(:,:,1) =  [2 1 1 1 1 3 3 3 3;  
+V(:,:,f2) =  [2 1 1 1 1 3 3 3 3;  
              2 2 1 1 1 2 3 3 3;
              2 2 2 1 1 2 2 3 3;
              2 2 2 2 1 2 2 2 3];
@@ -107,7 +123,7 @@ mdp.B = B;
 mdp.C = C;
 mdp.D = D;
 mdp.V = V;
-%mdp.T = 5; % Max dist. to high reward is 4
+mdp.T = 40; % Max dist. to high reward is 4
 mdp.label = label;
 
 
