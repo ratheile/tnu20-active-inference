@@ -24,6 +24,11 @@ D{f1} = [1 1 1 1 1]'; % high quantity of X (qoX) state <-> low qoX state
 % of the level of the physiological variable. (name v_k)
 f2 = 2; % coding for readability
 
+
+levels = {'+2', '+1', '0', '-1', '-2' };
+label.factor{f1} = 'prior'; label.name{f1} = levels;
+label.factor{f2} = 'physiological'; label.name{f2} = levels;
+
 % Prior probabilities over Nf(2)=5 factors (priors)
 D{f2} = [1 1 1 1 1]'; % high quantity of X (qoX) state <-> low qoX state
 
@@ -43,6 +48,8 @@ o1 = 1;
 % We give low reward for dyshomeostasis log(-4) and high reward for homeostasis log(4)
 C{o1} = [4 -4]';
 
+label.modality{o1} = 'state'; label.outcome = {'hom', 'dys'};
+
 % Likelihood over outcomes
 %--------------------------------------------------------------------------
 % p_i to o_1 likelihood conditioned on v_k
@@ -56,8 +63,8 @@ end
 % Transition probabilities
 %--------------------------------------------------------------------------
 % define shifts(factor, action)
-shifts = [0 0 1 -1 0;
-          1 -1 0 0 0];
+shifts = [ 0 1 -1 ;
+          1 -1 0 ];
 
 for f_i = 1:size(Nf,1)  % for each factor
   n = Na(f_i);
@@ -85,7 +92,8 @@ mdp.A = A;
 mdp.B = B;
 mdp.C = C;
 mdp.D = D;
-mdp.T = 3; % Max dist. to high reward is 4
+mdp.T = 40; % Max dist. to high reward is 4
+mdp.label = label;
 
 
 

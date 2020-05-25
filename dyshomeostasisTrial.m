@@ -1,7 +1,7 @@
 clear 
 clc
 
-rng(0,'twister');
+rng(5,'twister');
 
 
 % addpath ~\bayes
@@ -10,7 +10,7 @@ addpath ~/ws/mlab/spm12
 addpath ~/ws/mlab/spm12/toolbox/DEM
 
 num_trials = 1;
-num_episodes = 10;
+num_episodes = 1;
 z  = [1 4 7]; % change context for some episodes
 r = randi([1 5],1,100);
 loc1 = 5;
@@ -19,6 +19,7 @@ loc2 = 1;
 % With preferences:
 trwp = zeros(num_episodes, num_trials);
  for j = 1:num_trials
+     
       mdp = {};
       
       for i = 1:num_episodes
@@ -39,6 +40,10 @@ trwp = zeros(num_episodes, num_trials);
              end
 
              MDP  = spm_MDP_VB_X(MDP);     
+             spm_figure('GetWin','Figure 1');
+             spm_MDP_VB_trial(MDP)
+             
+             
              mdp{i} = MDP;
              trwp(i,j) = MDP.o(MDP.T);        
              
@@ -47,4 +52,7 @@ trwp = zeros(num_episodes, num_trials);
             
      end    
  end
+ 
+ 
+ spm_figure("GetWin", "Test");
  
