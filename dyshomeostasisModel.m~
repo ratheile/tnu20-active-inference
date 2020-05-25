@@ -3,9 +3,9 @@ function mdp = dyshomeostasisModel
 
 % Actions are: varU  (increase the level of X)
 %            : varD  (decrease the level of X)
-%            : prU  (increase the prior of X)
-%            : prD  (decrease the prior of X)
-%            : keep  (keep the prior (or level) of X)
+%            : prU   (increase the prior of X)
+%            : prD   (decrease the prior of X)
+%            : keep  (keep the prior or level of X)
 Na = [3 3]';
 
 % 0utcomes are: dys (dyshomeostasis)
@@ -56,13 +56,12 @@ end
 % Transition probabilities
 %--------------------------------------------------------------------------
 % define shifts(factor, action)
-shifts = [0  0  1 -1  0;
-          1 -1  0  0  0];
+shifts = [1 -1 0];
 
 for f_i = 1:size(Nf,1)  % for each factor
-  n = Na(f_i);
-  for a_i = 1:n % for each action
-    s = shifts(f_i, a_i);
+  n = Nf(f_i); % number of states for hidden factor f_i
+  for a_i = 1:Na(f_i) % for each action
+    s = shifts(a_i);
 
     % we shift up or down depending on the transition probs
     b = circshift(eye(n), s, 2); % 2 = second dimension (up down)
@@ -81,11 +80,21 @@ for f_i = 1:size(Nf,1)  % for each factor
   end
 end
 
+
+% Allowable policies
+%--------------------------------------------------------------------------
+
+V(:,:,1) =  [1 1 1 1 1 2 3 3 3 ;  
+             3 1 1 1 1 3 3 2 2 ;
+             3 3 1 1 1 3 3 2 2 ;
+             3 3 3 1 2 2 2 2 3 ];  
+                
+
 mdp.A = A;
 mdp.B = B;
 mdp.C = C;
 mdp.D = D;
-mdp.V = 
+mdp.V = V
 %mdp.T = 5; % Max dist. to high reward is 4
 
 
