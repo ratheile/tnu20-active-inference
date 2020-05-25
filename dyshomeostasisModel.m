@@ -63,12 +63,7 @@ end
 % Transition probabilities
 %--------------------------------------------------------------------------
 % define shifts(factor, action)
-<<<<<<< HEAD
-shifts = [ 0 1 -1 ;
-          1 -1 0 ];
-=======
 shifts = [1 -1 0];
->>>>>>> eeba44867b71af30691d4bdcbe2537c8ff215591
 
 for f_i = 1:size(Nf,1)  % for each factor
   n = Nf(f_i); % number of states for hidden factor f_i
@@ -96,12 +91,8 @@ mdp.A = A;
 mdp.B = B;
 mdp.C = C;
 mdp.D = D;
-<<<<<<< HEAD
 mdp.T = 40; % Max dist. to high reward is 4
 mdp.label = label;
-=======
-mdp.T = 5; % Max dist. to high reward is 4
->>>>>>> eeba44867b71af30691d4bdcbe2537c8ff215591
 
 
 
