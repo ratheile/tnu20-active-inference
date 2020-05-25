@@ -3,22 +3,12 @@ clc
 
 rng(5,'twister');
 
-<<<<<<< HEAD
-% addpath ~\bayes
-% addpath ~\spm\
-%addpath ~/ws/mlab/spm12
-%addpath ~/ws/mlab/spm12/toolbox/DEM
 addpath ./../spm12
 addpath ./../spm12/toolbox/DEM
-=======
-addpath ./../spm12
-addpath ./../spm12/toolbox/DEM
-
->>>>>>> 22560ea27cc307f52c352ad36484bdfe949ee0cc
 
 num_trials = 3;
 num_episodes = 20;
-z  = [4 8 12 16]; % change context for some episodes
+z  = [4 8 12 16]; % change context for some  system('whoami')episodes
 pLoc = randi([1 5], 1);
 vLoc = randi([1 5], 1);
 
