@@ -3,12 +3,18 @@ clc
 
 rng(5,'twister');
 
+<<<<<<< HEAD
 % addpath ~\bayes
 % addpath ~\spm\
 %addpath ~/ws/mlab/spm12
 %addpath ~/ws/mlab/spm12/toolbox/DEM
 addpath ./../spm12
 addpath ./../spm12/toolbox/DEM
+=======
+addpath ./../spm12
+addpath ./../spm12/toolbox/DEM
+
+>>>>>>> 22560ea27cc307f52c352ad36484bdfe949ee0cc
 
 num_trials = 3;
 num_episodes = 20;
@@ -39,10 +45,9 @@ trwp = zeros(num_episodes, num_trials);
                  [MDP.s]     = [pLoc vLoc]';
              end
 
-             MDP  = spm_MDP_VB_X(MDP);     
+             MDP  = spm_MDP_VB_X(MDP);
              spm_figure('GetWin','Figure 1');
              spm_MDP_VB_trial(MDP)
-             
              
              mdp{i} = MDP;
              trwp(i,j) = MDP.o(MDP.T);        
