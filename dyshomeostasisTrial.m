@@ -5,9 +5,10 @@ rng(5,'twister');
 
 % addpath ~\bayes
 % addpath ~\spm\
-addpath ~/ws/mlab/spm12
-addpath ~/ws/mlab/spm12/toolbox/DEM
-
+%addpath ~/ws/mlab/spm12
+%addpath ~/ws/mlab/spm12/toolbox/DEM
+addpath ./../spm12
+addpath ./../spm12/toolbox/DEM
 
 num_trials = 3;
 num_episodes = 20;
