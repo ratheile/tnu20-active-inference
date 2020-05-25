@@ -1,10 +1,11 @@
 clear 
 clc
 
-rng(15,'twister');
+rng(5,'twister');
 
-addpath ~/Desktop/Courses/TNU/Project/spm12
-addpath ~/Desktop/Courses/TNU/Project/spm12/toolbox/DEM
+addpath ./../spm12
+addpath ./../spm12/toolbox/DEM
+
 
 num_trials = 3;
 num_episodes = 20;
@@ -15,6 +16,7 @@ vLoc = randi([1 5], 1);
 % With preferences:
 trwp = zeros(num_episodes, num_trials);
  for j = 1:num_trials
+     
       mdp = {};
       
       for i = 1:num_episodes
@@ -34,7 +36,10 @@ trwp = zeros(num_episodes, num_trials);
                  [MDP.s]     = [pLoc vLoc]';
              end
 
-             MDP  = spm_MDP_VB_X(MDP);     
+             MDP  = spm_MDP_VB_X(MDP);
+             spm_figure('GetWin','Figure 1');
+             spm_MDP_VB_trial(MDP)
+             
              mdp{i} = MDP;
              trwp(i,j) = MDP.o(MDP.T);        
              
@@ -43,4 +48,7 @@ trwp = zeros(num_episodes, num_trials);
             
      end    
  end
+ 
+ 
+ spm_figure("GetWin", "Test");
  

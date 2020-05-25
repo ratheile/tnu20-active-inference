@@ -24,6 +24,11 @@ D{f1} = [1 1 1 1 1]'; % high quantity of X (qoX) state <-> low qoX state
 % of the level of the physiological variable. (name v_k)
 f2 = 2; % coding for readability
 
+
+levels = {'+2', '+1', '0', '-1', '-2' };
+label.factor{f1} = 'prior'; label.name{f1} = levels;
+label.factor{f2} = 'physiological'; label.name{f2} = levels;
+
 % Prior probabilities over Nf(2)=5 factors (priors)
 D{f2} = [1 1 1 1 1]'; % high quantity of X (qoX) state <-> low qoX state
 
@@ -42,6 +47,8 @@ o1 = 1;
 
 % We give low reward for dyshomeostasis log(-4) and high reward for homeostasis log(4)
 C{o1} = [4 -4]';
+
+label.modality{o1} = 'state'; label.outcome = {'hom', 'dys'};
 
 % Likelihood over outcomes
 %--------------------------------------------------------------------------
@@ -101,6 +108,7 @@ mdp.C = C;
 mdp.D = D;
 mdp.V = V;
 %mdp.T = 5; % Max dist. to high reward is 4
+mdp.label = label;
 
 
 
