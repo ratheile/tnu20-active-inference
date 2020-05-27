@@ -36,7 +36,6 @@ for j = 1:num_trials
     p_hist = zeros(num_episodes * T, num_trials);
     v_true_hist = zeros(num_episodes * T, num_trials);
     v_hist = zeros(num_episodes * T, num_trials);
-    u_hist = zeros(num_episodes * (T-1), num_trials);
     
     for i = 1:num_episodes
 
@@ -82,7 +81,6 @@ for j = 1:num_trials
             s = Funcs.decode_pv(MDP.s(k), Nf);
             p_hist((i-1)*T+k) = s(1);
             v_hist((i-1)*T+k) = s(2);
-            u_hist((i-1)*(T-1)+1:i*(T-1)) = MDP.u;
             
             if k > 1
                 kk = k - 1;
@@ -119,8 +117,7 @@ for j = 1:num_trials
         imagesc(X_hist{1});
         title('Posterior probability');
 
-        subplot(2,2,4);
-        plot(r, u_hist(r), 'LineWidth', 2);
+        subplot(2,2,3);
         title('Actions');
     end    
 
