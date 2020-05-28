@@ -2,7 +2,7 @@ function mdp = dyshomeostasisModel
     
   N_p = 32; p_min = -2; p_max = 2;
   N_v = 32; v_min = -2; v_max = 2;
-  N_a = 5;  a_min = 0.5; a_max = 3;
+  N_a = 5;  a_min = 0.05; a_max = 0.15;
 
   p = linspace(p_min, p_max, N_p);
   v = linspace(v_min, v_max, N_p);
@@ -18,19 +18,25 @@ function mdp = dyshomeostasisModel
   N_f1 = N_p * N_v; % cartinality c(.)  c(p) * c(v)
   D{f1} = ones(N_f1,1) / N_f1; 
 
-  % Factor 2: allostatic control level
-  % f2 = 2; % coding for readability
-  % N_f2 = N_a;
-  % D{f2} = ones(N_f1,1); 
+  % Factor 2: metacognitive decision making
+  % 1) quickly adapt
+  % 2) helplessness: "change does not matter"
+  f2 = 2; % coding for readability
+  N_f2 = 2;
+  D{f2} = ones(N_f2,1); 
 
-  % Factor 3: metacognition: certaincy about allostatic level
-  f3 = 3; % maybe?
 
   label.factor{f1} = 'prior+value'; 
-  % label.factor{f2} = 'allostatic_control';
+  label.factor{f2} = 'metacognition';
 
   % Outcome Modality 1: Dyshomeostasis
   o1 = 1;
+  o1_utility_disabled = -4; %  TODO: 4 for uniform
+  o1_utility_disabled_offset = -2;
+  o1_utility_min = 4;
+  o1_utility_max = -2;
+  o1_utility_levels = 5;
+  label.modality{o1} = 'state'; 
   
   o1_levels = zeros(N_p,N_v);
   for i = 1:N_p
@@ -38,70 +44,92 @@ function mdp = dyshomeostasisModel
       o1_levels(i,j) = v(j) - p(i);
     end
   end
-  
-  label.modality{o1} = 'state'; 
+
   o1_levels = abs(o1_levels);
   o1_bounds = [min(o1_levels, [], 'all')  max(o1_levels, [], 'all')];
-  o1_levels = (o1_bounds(1):o1_bounds(2));
-  C{o1} = o1_levels;
+  o1_levels = [ ...
+    o1_bounds(1) + o1_utility_disabled_offset ...
+    linspace(o1_bounds(1), o1_bounds(2), o1_utility_levels) ...
+  ];
+  C{o1} =  [o1_utility_disabled linspace(o1_utility_min, o1_utility_max, o1_utility_levels)];
   N_o1 = length(C{o1});
   
   % The outcome includes the agent's conclusion about its current situation which is either
   % being in balance (homeostasis) or being imbalanced (dyshomeostasis).
   % We give low reward for dyshomeostasis log(-4) and high reward for homeostasis log(4)
   
-  % Outcome Modality 2: Stress
-  % o2 = 2;
-  %N_o2 = 3
-  % C{o2} = [4 0 -4]
+  % Outcome Modality 2:  Used in combination with factor 2's "helpless" state
+  o2 = 2;
+  C{o2} = [-2 4];
+
   
-  
-  %  Outcome: Dishomeostasis
+  % Outcome 1: Perceived Dishomeostasis
   %--------------------------------------------------------------------------
+  f2_s = 1; % Punish distance by a lot
+  % outcome levels: -1 --- 0 --- 1 ---------------> 4
+  % scale:                 0 --- 1 ---------------> 4
   sigma = 0.4;
-  
   %label.outcome = {};
   for k = 1:N_o1
    % label.outcome(k) = {append('+', num2str(o1_levels(k)))}
     for i = 1:N_p
         for j = 1:N_v
-          dv = v(j) - p(i);
+          dv = abs(v(j) - p(i));
           y = normpdf(dv, o1_levels(k), sigma);
-          A{o1}(k,(j - 1)*N_p + i) = y;
+          A{o1}(k,(j - 1)*N_p + i, f2_s) = y;
       end
     end
   end
 
+  f2_s = 2; % helplessness 
+  % outcome levels: -k --- ... --- 0 --- 1 ---------------> 4
+  % scale:           0 --> 4
+  % In this case, we do not think of eventual dyshomeostasis as something
+  % which we should correct. We shift the likelihood towards a neutral state.
+  % This is achieved by reducing the perceived distance.
+  distance_scale = 1000;
+  for k = 1:N_o1
+    for i = 1:N_p
+        for j = 1:N_v
+          dv = abs(v(j) - p(i)) / distance_scale + o1_utility_disabled_offset;
+          y = normpdf(dv, o1_levels(k), sigma);
+          A{o1}(k,(j - 1)*N_p + i, f2_s) = y;
+      end
+    end
+  end
+
+  % Outcome 2: Disinterest
+  %--------------------------------------------------------------------------
+  o2_p = 0.1;
+  f2_s = 1; % Punish distance by a lot
+  for i = 1:N_p
+      for j = 1:N_v
+        A{o2}(1,(j - 1)*N_p + i, f2_s) = 1-o2_p; % o2 1 -> low reward
+        A{o2}(2,(j - 1)*N_p + i, f2_s) = o2_p; % o2 2 -> high reward
+    end
+  end
+
+  f2_s = 2; % helplessness 
+  for i = 1:N_p
+      for j = 1:N_v
+        A{o2}(1,(j - 1)*N_p + i, f2_s) = o2_p; % o2 1 -> low reward
+        A{o2}(2,(j - 1)*N_p + i, f2_s) = 1-o2_p; % o2 2 -> high reward
+    end
+  end
 
   % Transition probabilities for Factor 2:
   %--------------------------------------------------------------------------
-  shifts = [1 0 -1];
-  % define shifts(factor, action)
- % n = N_f1; % number of states for hidden factor f_i
- % for a_i = 1:Na(f_i) % for each action
- %   s = shifts(a_i);
- %
- %   % we shift up or down depending on the transition probs
- %   b = circshift(eye(n), s, 2); % 2 = second dimension (up down)
- %
- %   % the shift is bounded by the highest / lowest state
- %   % there we just remain in that state
- %   overflow_bound = zeros(n, abs(s));
- %   if s > 0 % shift up
- %     overflow_bound(1,:) = 1;
- %     b(:,1:s) = overflow_bound;
- %   elseif s < 0 % shift down
- %     overflow_bound(n,:) = 1;
- %     b(:,n+s+1:n) = overflow_bound;
- %   end
- %   B{f2}(:,:,a_i) = b;
- % end
+  p_hl = 0.8;
+  p_rec = 0.1;
+  B{f2}(:,:,1) = [ 1-p_hl 0; p_hl 1]; % 1 -> 2 % become helpless
+  B{f2}(:,:,2) = [ 1 p_rec; 0 1-p_rec]; % 2 -> 1 % become active 
+  B{f2}(:,:,3) = [ 1 0; 0 1];  % stay
  
   % smoothing matrix to simulate noise
   %--------------------------------------------------------------------------
-  K     = toeplitz(sparse(1,[1 2],[1 1/2],1,N_v));
-  K     = K + K';
-  K     = K*diag(1./sum(K,1));
+  K = toeplitz(sparse(1,[1 2],[1 1/2],1,N_v));
+  K = K + K';
+  K = K*diag(1./sum(K,1));
 
   % Transition probabilities for Factor 1:
   %--------------------------------------------------------------------------
@@ -163,8 +191,18 @@ function mdp = dyshomeostasisModel
   mdp.B = B;
   mdp.C = C;
   mdp.D = D;
+  mdp.T = 5;
   mdp.label = label;
-  mdp.dys_actions = a;
-return
 
+  mdp.N.f1 = N_f1;
+  mdp.N.f2 = N_f2;
+  mdp.N.p = N_p;
+  mdp.N.v = N_v;
+  mdp.N.a = N_a;
+  
+  % store the discretization spaces
+  mdp.d_spaces.a = a;
+  mdp.d_spaces.v = v;
+  mdp.d_spaces.p = p;
+end
 

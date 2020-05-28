@@ -8,49 +8,52 @@ addpath ./../spm12/toolbox/DEM
 
 num_trials = 1;
 num_episodes = 20;
-change  = [1 4 8 12 16]; % change context for some episodes
+change  = [1 3 6 12 16]; % change context for some episodes
 
 contexts = {};
     contexts(1) = {struct('p', 2)};
-    contexts(4) = {struct('p', 16)};
-    contexts(8) = {struct('p', 5)};
+    contexts(3) = {struct('p', 16)};
+    contexts(6) = {struct('p', 5)};
     contexts(12) = {struct('p', 16)};
     contexts(16) = {struct('p', 2)};
 
 % Hyperparameter
-Nf = 32;
-T = 10;
-
+cfg_model = dyshomeostasisModel(); % used for setup, never evaluated
+N_F = 2; f1 = 1; f2 = 2; % we employ 2 factors 
+T = cfg_model.T;
+N_f1 = cfg_model.N_f1;
+N_f2 = cfg_model.N_f2;
 
 % With preferences:
 trwp = zeros(num_episodes, num_trials);
 
 for j = 1:num_trials
+
     
     mdp_hist = {};
-    X_hist{1} = zeros(Nf * Nf, num_episodes);
-
+    X_hist{f1} = zeros(N_f1 * N_f1, num_episodes);
+    X_hist{f2} = zeros(N_f2, num_episodes);
+    
     v_start = 2;
-
+    
     p_true_hist = zeros(num_episodes * T, num_trials);
     p_hist = zeros(num_episodes * T, num_trials);
     v_true_hist = zeros(num_episodes * T, num_trials);
     v_hist = zeros(num_episodes * T, num_trials);
+    u_hist = zeros(num_episodes * (T-1), N_F, num_trials);
     
     for i = 1:num_episodes
 
         % Set up the model
         mdp = dyshomeostasisModel();   
-        mdp.T = T;
-
 
         if ~isempty(find(change == i)) % change context
             p_start = contexts{i}.p;
         end
 
-
         if i > 1
-            mdp.D{1} = X{1};
+            mdp.D{f1} = X{f1}; % Copy belief about our states
+            mdp.D{f2} = X{f2}; % Copy metacognitive belief 
         end
         
         % sigma = 1;
@@ -58,7 +61,7 @@ for j = 1:num_trials
         % y = normpdf(x,v,sigma);
         % MDP.D{2} = y';
 
-        [mdp.s] = [Funcs.encode_pv(p_start, v_start, Nf)];
+        [mdp.s] = [Funcs.encode_pv(p_start, v_start, N_f1) 1]';
 
         MDP  = spm_MDP_VB_X(mdp);
         spm_figure('GetWin','Figure 1');
@@ -68,9 +71,12 @@ for j = 1:num_trials
         trwp(i,j) = MDP.o(MDP.T);        
         
         % keeping the posterior
-        X{1} = MDP.X{1}(:,end);
-        X_hist{1}(:,i) = X{1}(:,end);
-        % X{2} = MDP.X{2}(:,end);
+        X{f1} = MDP.X{f1}(:,end);
+        X{f2} = MDP.X{f2}(:,end);
+        
+        % store for analysis + plots
+        X_hist{f1}(:,i) = X{f1}(:,end);
+        X_hist{f2}(:,i) = X{f2}(:,end);
         
         as_v = v_start;
         as_p = p_start;
@@ -78,9 +84,10 @@ for j = 1:num_trials
 
             % Copy the "true" state from the agent
             % We want to compare it to the actual truth
-            s = Funcs.decode_pv(MDP.s(k), Nf);
+            s = Funcs.decode_pv(MDP.s(k), N_f1);
             p_hist((i-1)*T+k) = s(1);
             v_hist((i-1)*T+k) = s(2);
+            u_hist((i-1)*(T-1)+1:i*(T-1),: ,j ) = MDP.u';
             
             if k > 1
                 kk = k - 1;
@@ -104,21 +111,31 @@ for j = 1:num_trials
         % Plotting
         r = 1:(i-1)*T;
         spm_figure('GetWin', 'Trajectory')
+        
+        plt_x = 2
+        plt_y = 3
 
-        subplot(2,2,1);
+        subplot(plt_x,plt_y,1);
         plot(r, p_true_hist(r), 'LineWidth', 2); hold on;
         plot(r, v_true_hist(r), 'LineWidth', 2); 
+        title('True Trajectory');
 
-        subplot(2,2,2);
+        subplot(plt_x,plt_y,2);
         plot(r, p_hist(r), 'LineWidth', 2); hold on;
         plot(r, v_hist(r), 'LineWidth', 2);
+        title('Perceived Trajectory');
 
-        subplot(2,2,3);
+        subplot(plt_x,plt_y,3);
         imagesc(X_hist{1});
         title('Posterior probability');
 
-        subplot(2,2,3);
+        subplot(plt_x,plt_y,4);
+        plot(r, u_hist(r), 'LineWidth', 2);
         title('Actions');
+
+        subplot(plt_x,plt_y,5);
+        imagesc(X_hist{1});
+        title('Posterior probability');
     end    
 
 

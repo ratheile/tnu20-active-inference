@@ -3,9 +3,20 @@ classdef Funcs
   methods (Static=true)
 
     function state = adaptive_system(prior, value, action)
+      dt = 0.1;
       dp = prior - value;
-      dv = dp * action;
-    noise = (normrnd(0, action / 2));
+      
+      dp * action
+      
+      if prior > value % charging
+          v_t = dp * (1-exp(-dt / action));
+          dv = dp - v_t;
+      else % discharging
+          v_t = dp * (exp(-dt / action));
+          dv = dp - v_t;
+     end
+
+      noise = (normrnd(0, action / 10));
       dv = dv + noise;
       state = [dv; prior];
     end
