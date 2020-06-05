@@ -1,4 +1,4 @@
-function mdp = dyshomeostasisModel
+function mdp = Model
     
   N_p = 32; p_min = -2; p_max = 2;
   N_v = 32; v_min = -2; v_max = 2;
@@ -31,7 +31,7 @@ function mdp = dyshomeostasisModel
 
   % Outcome Modality 1: Dyshomeostasis
   o1 = 1;
-  o1_utility_disabled = -4; %  TODO: 4 for uniform
+  o1_utility_disabled = 4; %  TODO: 4 for uniform
   o1_utility_disabled_offset = -2;
   o1_utility_min = 4;
   o1_utility_max = -2;

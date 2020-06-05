@@ -1,7 +1,7 @@
 clear 
 clc
 
-rng(6,'twister');
+rng(8,'twister');
 
 addpath ./../spm12
 addpath ./../spm12/toolbox/DEM
@@ -26,7 +26,7 @@ contexts = {};
     contexts(18) = {struct('v', 28)};
 
 % Hyperparameter
-cfg_model = dyshomeostasisModel(); % used for setup, never evaluated
+cfg_model = Model(); % used for setup, never evaluated
 N_F = 2; f1 = 1; f2 = 2; % we employ 2 factors 
 T = cfg_model.T;
 N_f1 = cfg_model.N.f1;
@@ -69,8 +69,8 @@ for j = 1:num_trials
     for i = 1:num_episodes
         
         % Set up the model
-        mdp = dyshomeostasisModel();   
-        8
+        mdp = Model();   
+        
         % Take over values from prev episode
         % -----------------------------------------------------------------
         if i > 1
@@ -173,34 +173,53 @@ for j = 1:num_trials
         subplot(plt_x,plt_y,1);
         plot(r, as_p(r), 'LineWidth', 2); hold on;
         plot(r, as_v(r), 'LineWidth', 2); 
-        title('True Trajectory');
+        title('Continuous Dynamics Trajectory (ODE)', 'Interpreter', 'tex');
+        ylabel('State (v,p)', 'Interpreter', 'tex');
+        xlabel('Timestep')
 
         subplot(plt_x,plt_y,2);
         plot(r, p_hist(r), 'LineWidth', 2); hold on;
         plot(r, v_hist(r), 'LineWidth', 2);
-        title('Perceived Trajectory');
+        title('Agent´s Perceived Trajectory (decoded f_1)' , 'Interpreter', 'tex');
+        ylabel('Decoded State (v,p)', 'Interpreter', 'tex');
+        xlabel('Timestep')
 
         subplot(plt_x,plt_y,3);
         % plot(r, u_hist(r), 'LineWidth', 2);
         imagesc(P_hist{f1});
-        title('Actions f1');
+        title('Actions f_1', 'Interpreter', 'tex');
+        ylabel('Action a_{f_1}', 'Interpreter', 'tex');
+        xlabel('Timestep', 'Interpreter', 'tex');
 
         subplot(plt_x,plt_y,4);
         % plot(r, u_hist(r), 'LineWidth', 2);
         imagesc(P_hist{f2});
-        title('Actions f2');
+        title('Actions f_2', 'Interpreter', 'tex');
+        ylabel('Action a_{f_2}', 'Interpreter', 'tex');
+        xlabel('Timestep', 'Interpreter', 'tex');
         
         
-        plt_x = 2; plt_y = 1;
+        plt_x = 3; plt_y = 1;
         spm_figure('GetWin', 'Posteriors');
+        xlabel('Timestep', 'Interpreter', 'tex');
 
         subplot(plt_x,plt_y,1);
         imagesc(log(X_hist{f1}+0.00001));
-        title('Posterior probability');
-
+        title('Log Posterior probability of f_1', 'Interpreter', 'tex');
+        ylabel('log(q(s))', 'Interpreter', 'tex');
+        xlabel('Timestep', 'Interpreter', 'tex');
+        
         subplot(plt_x,plt_y,2);
+        imagesc(log(X_hist{f1}(400:600,:)+0.00001));
+        title('Log Posterior probability of f_1 (400-600)', 'Interpreter', 'tex');
+        ylabel('log(q(s))', 'Interpreter', 'tex');
+        xlabel('Timestep', 'Interpreter', 'tex');
+
+        subplot(plt_x,plt_y,3);
         imagesc(X_hist{f2});
-        title('Posterior probability');
+        title('Posterior probability', 'Interpreter', 'tex');
+        ylabel('q(s)', 'Interpreter', 'tex');
+        xlabel('Timestep', 'Interpreter', 'tex');
     end    
 
 
