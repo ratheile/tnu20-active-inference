@@ -1,12 +1,12 @@
 function mdp = Model
     
-  N_p = 32; p_min = -2; p_max = 2;
-  N_v = 32; v_min = -2; v_max = 2;
-  N_a = 5;  a_min = 0.05; a_max = 0.15;
+  N_p = 32; p_min = -2; p_max = 2; % ranges vor p
+  N_v = 32; v_min = -2; v_max = 2; % ranges for v
+  N_a = 5;  a_min = 0.05; a_max = 0.15; % ranges for kappa
 
   p = linspace(p_min, p_max, N_p);
   v = linspace(v_min, v_max, N_p);
-  a = linspace(a_min, a_max, N_a); % capacitor tau
+  a = linspace(a_min, a_max, N_a); % kappa
 
   levels = cell(1, N_a);
   for i = 1:N_a
@@ -31,13 +31,17 @@ function mdp = Model
 
   % Outcome Modality 1: Dyshomeostasis
   o1 = 1;
-  o1_utility_disabled = 4; %  TODO: 4 for uniform
-  o1_utility_disabled_offset = -2;
+
+  % WARNING: Set this to 4 for the helpless experiment
+  o1_utility_disabled = -4; % the pseudo state's utility
+  o1_utility_disabled_offset = -2;  % how much offset the pseudo state has
   o1_utility_min = 4;
-  o1_utility_max = -2;
-  o1_utility_levels = 5;
+  o1_utility_max = -2; 
+  o1_utility_levels = 5; % ammount of discrete levels
   label.modality{o1} = 'state'; 
   
+  % we compute o1 outcome levels depending on the maximal difference
+  % in between v and p and then scale it in between o1_utility_min / max
   o1_levels = zeros(N_p,N_v);
   for i = 1:N_p
     for j = 1:N_v
@@ -62,16 +66,13 @@ function mdp = Model
   o2 = 2;
   C{o2} = [-2 4];
 
-  
   % Outcome 1: Perceived Dishomeostasis
   %--------------------------------------------------------------------------
   f2_s = 1; % Punish distance by a lot
   % outcome levels: -1 --- 0 --- 1 ---------------> 4
   % scale:                 0 --- 1 ---------------> 4
   sigma = 0.4;
-  %label.outcome = {};
   for k = 1:N_o1
-   % label.outcome(k) = {append('+', num2str(o1_levels(k)))}
     for i = 1:N_p
         for j = 1:N_v
           dv = abs(v(j) - p(i));
