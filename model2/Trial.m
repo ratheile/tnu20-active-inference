@@ -8,11 +8,14 @@ addpath ./../spm12/toolbox/DEM
 
 num_trials = 1;
 num_episodes = 30;
-change  = [1 2 3 4 6 12 14 15 16 17 18]; % change context for some episodes
 
+% change episodal context for some episodes
+change  = [1 2 3 4 6 12 14 15 16 17 18]; 
+
+% These are the perturbations applied during the trial
 contexts = {};
-    contexts(1) = {struct('v', 2)};
-    contexts(2) = {struct('v', 28)};
+    contexts(1) = {struct('v', 2)}; % set the value to 2
+    contexts(2) = {struct('v', 28)}; % set the value to 28
     contexts(3) = {struct('v', 28)};
     contexts(4) = {struct('v', 28)};
     contexts(6) = {struct('v', 5)};
@@ -25,7 +28,7 @@ contexts = {};
     contexts(17) = {struct('v', 28)};
     contexts(18) = {struct('v', 28)};
 
-% Hyperparameter
+% Hyperparameter (carry over some predefined ranges of the model)
 cfg_model = Model(); % used for setup, never evaluated
 N_F = 2; f1 = 1; f2 = 2; % we employ 2 factors 
 T = cfg_model.T;
@@ -89,17 +92,12 @@ for j = 1:num_trials
             as_p(1) = d_space_p(p_start);
         end
         
-        % Experimental input
+        % Experimental input (perturbations)
         % -----------------------------------------------------------------
         if ~isempty(find(change == i)) % change context
             v_start = contexts{i}.v; 
             as_v((i-1)*T+1) = d_space_v(v_start);
         end
-
-        % sigma = 1;
-        % x = 1:5;
-        % y = normpdf(x,v,sigma);
-        % MDP.D{2} = y';
 
         f1_start = Funcs.encode_pv(p_start, v_start, N_v);
         [mdp.s] = [ f1_start; f2_start ];
@@ -118,7 +116,7 @@ for j = 1:num_trials
         X_hist{f1}(:, (i-1)*T+1:(i-1)*T+T) = MDP.X{f1};
         X_hist{f2}(:, (i-1)*T+1:(i-1)*T+T) = MDP.X{f2};
         
-        u_hist((i-1)*(T-1)+1:i*(T-1),: ,j ) = MDP.u'; % TODO: fix u
+        u_hist((i-1)*(T-1)+1:i*(T-1),: ,j ) = MDP.u'; 
         
         
         % States of which the agent thinks they are the "truth"
@@ -180,19 +178,17 @@ for j = 1:num_trials
         subplot(plt_x,plt_y,2);
         plot(r, p_hist(r), 'LineWidth', 2); hold on;
         plot(r, v_hist(r), 'LineWidth', 2);
-        title('Agent´s Perceived Trajectory (decoded f_1)' , 'Interpreter', 'tex');
+        title('Agentï¿½s Perceived Trajectory (decoded f_1)' , 'Interpreter', 'tex');
         ylabel('Decoded State (v,p)', 'Interpreter', 'tex');
         xlabel('Timestep')
 
         subplot(plt_x,plt_y,3);
-        % plot(r, u_hist(r), 'LineWidth', 2);
         imagesc(P_hist{f1});
         title('Actions f_1', 'Interpreter', 'tex');
         ylabel('Action a_{f_1}', 'Interpreter', 'tex');
         xlabel('Timestep', 'Interpreter', 'tex');
 
         subplot(plt_x,plt_y,4);
-        % plot(r, u_hist(r), 'LineWidth', 2);
         imagesc(P_hist{f2});
         title('Actions f_2', 'Interpreter', 'tex');
         ylabel('Action a_{f_2}', 'Interpreter', 'tex');
@@ -221,6 +217,4 @@ for j = 1:num_trials
         ylabel('q(s)', 'Interpreter', 'tex');
         xlabel('Timestep', 'Interpreter', 'tex');
     end    
-
-
 end
