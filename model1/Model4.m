@@ -37,9 +37,9 @@ o1 = 1;
 max_level = floor(Nf(1)/2);
 shifts = max_level:-1:(-max_level+22);
 if var==1
-  C{o1} = [shifts zeros(1,22)]';
+  C{o1} = [shifts zeros(1,22)]'; %Smaller indifference region
 else
-  C{o1} = [15 12 8 3 zeros(1,Nf(1)-3)]';
+  C{o1} = [15 12 8 3 zeros(1,Nf(1)-4)]'; %Bigger indifference region
 end
 
 
