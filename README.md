@@ -11,4 +11,4 @@ This repository contains the two models mentioned in the paper.
 
 
 # Paper
-Our [paper](paper.pdf) explains the active inference models.
+Our [paper](TNU_Active_Inference.pdf) explains the active inference models.
