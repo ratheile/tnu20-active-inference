@@ -35,11 +35,12 @@ o1 = 1;
 % We give low reward for the low level of homeostasis and high reward for
 % the high level of homeostasis.
 max_level = floor(Nf(1)/2);
-shifts = max_level:-1:(-max_level+22);
 if var==1
+  shifts = max_level:-1:(-max_level+22);
   C{o1} = [shifts zeros(1,22)]'; %Smaller indifference region
 else
-  C{o1} = [15 12 8 3 zeros(1,Nf(1)-4)]'; %Bigger indifference region
+  shifts = max_level:-1:(-max_level+27);
+  C{o1} = [shifts zeros(1,27)]'; %Bigger indifference region
 end
 
 
