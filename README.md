@@ -1,6 +1,7 @@
 # Modeling Dyshomeostasis and Its Potential Causes by Active Inference
 
 ## Prerequisites
+All our models use SPM12.
 Unpack [spm12](https://www.fil.ion.ucl.ac.uk/spm/software/spm12/) to the root folder of this project.
 
 # Models
